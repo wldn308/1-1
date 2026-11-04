@@ -54,3 +54,24 @@ $ rm renamed.txt
 $ ls
 test.txt
 ```
+
+## 2단계 권한 변경
+```bash
+$ ls -l
+total 4
+drwxr-xr-x 1 wldn3089811 1049089   0 Nov  4 15:51 practice/
+-rw-r--r-- 1 wldn3089811 1049089 825 Nov  4 15:54 README.md
+$ chmod 400 README.md
+$ ls -l
+total 4
+drwxr-xr-x 1 wldn3089811 1049089   0 Nov  4 15:51 practice/
+-r--r--r-- 1 wldn3089811 1049089 825 Nov  4 15:54 README.md
+$ chmod 644 README.MD
+$ ls -l
+total 4
+drwxr-xr-x 1 wldn3089811 1049089   0 Nov  4 15:51 practice/
+-rw-r--r-- 1 wldn3089811 1049089 825 Nov  4 15:54 README.md
+```
+
+## 3단계 Docker 설치 점검
+

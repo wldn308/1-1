@@ -533,3 +533,25 @@ no changes added to commit (use "git add" and/or "git commit -a")
 
 $ git add .
 warning: in the working copy of 'practice/test.txt', LF will be replaced by CRLF the next time Git touches it
+
+$ git commit -m "최종 README 및 증빙 이미지 추가"
+[main 90e968c] 최종 README 및 증빙 이미지 추가
+ 8 files changed, 511 insertions(+), 85 deletions(-)
+ create mode 100644 Dockerfile
+ create mode 100644 app/index.html
+ create mode 100644 docs/images/bind-mount-8082.png
+ create mode 100644 docs/images/port-8081-browser.png
+ create mode 100644 docs/images/vs-git1.png
+ create mode 100644 docs/images/vs-git2.png
+ create mode 100644 docs/images/vs-git3.png
+
+ $ git push origin main
+Enumerating objects: 15, done.
+Counting objects: 100% (15/15), done.
+Delta compression using up to 24 threads
+Compressing objects: 100% (11/11), done.
+Writing objects: 100% (13/13), 715.37 KiB | 35.77 MiB/s, done.
+Total 13 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/wldn308/1-1.git
+   b86c5af..90e968c  main -> main
+   

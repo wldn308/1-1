@@ -774,7 +774,7 @@ $ curl http://localhost:8081
 ```text
 http://localhost:8081
 ```
-
+![포트 매핑 접속 증거](docs/images/port-8081-browser.png)
 브라우저 화면에서 `Hello Docker NGINX` 문구가 표시되는 것을 확인했다.
 
 ### 12-3. 포트 매핑 의미 정리
@@ -864,7 +864,7 @@ $ curl http://localhost:8082
 </body>
 </html>
 ```
-
+![바인드 마운트 증거](docs/images/port-8081-browser.png)
 호스트의 `index.html` 파일 내용이 컨테이너에서 제공되는 것을 확인했다.
 
 ---
@@ -897,7 +897,7 @@ EOF
 $ curl http://localhost:8082
 <!DOCTYPE html>
 <html>
-<head
+<head>
     <meta charset="UTF-8">
     <title>Bind Mount Test</title>
 </head>
@@ -1084,6 +1084,18 @@ origin  https://github.com/wldn308/1-1.git (push)
 
 ---
 
+### 15-6. Git 전체 설정 목록 확인
+
+```bash
+$ git config --list
+user.name=<USER_NAME>
+user.email=<USER_EMAIL>
+init.defaultbranch=main
+core.editor=code --wait
+```
+
+---
+
 ## 16. GitHub 연동 및 업로드
 
 작성한 README 파일을 GitHub Repository에 업로드했다.
@@ -1170,6 +1182,18 @@ VSCode의 Source Control 탭에서 Git 저장소가 정상적으로 인식되는
 | Remote | GitHub 원격 저장소 연동 확인 |
 
 VSCode와 GitHub Repository가 정상적으로 연동되어 있음을 확인했다.
+
+#### 증거 1. GitHub 저장소 화면
+
+<img src="docs/images/vs-git3.png" width="600">
+
+#### 증거 2. VS Code Source Control 화면
+
+<img src="docs/images/vs-git1.png" width="600">
+
+#### 증거 3. 터미널 Git 확인 화면
+
+<img src="docs/images/vs-git2.png" width="600">
 
 ---
 

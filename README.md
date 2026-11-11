@@ -813,7 +813,7 @@ $ cd bind-mount
 ### 13-2. 호스트 index.html 작성
 
 ```bash
-$ cat > index.html <<'EOF'
+$ cat > index.html 
 <!DOCTYPE html>
 <html>
 <head>
@@ -822,9 +822,9 @@ $ cat > index.html <<'EOF'
 </head>
 <body>
     <h1>Bind Mount Version 1</h1>
+    <p>This content was changed on the host machine.</p>
 </body>
 </html>
-EOF
 ```
 
 호스트에 바인드 마운트로 연결할 `index.html` 파일을 작성했다.
@@ -834,7 +834,9 @@ EOF
 ### 13-3. 바인드 마운트 컨테이너 실행
 
 ```bash
-$ docker run -d --name bind-nginx -p 8082:80 -v "$(pwd)/index.html:/usr/share/nginx/html/index.html" nginx:alpine
+$ docker run -d --name bind-nginx -p 8082:80 \
+  -v /c/Users/wldn3089811/1-1/1-1/bind-mount-test:/usr/share/nginx/html:ro \
+  nginx:alpine
 <CONTAINER_ID>
 ```
 
@@ -846,6 +848,11 @@ $ docker run -d --name bind-nginx -p 8082:80 -v "$(pwd)/index.html:/usr/share/ng
 | `--name bind-nginx` | 컨테이너 이름 지정 |
 | `-p 8082:80` | 호스트 8082 포트를 컨테이너 80 포트와 연결 |
 | `-v "$(pwd)/index.html:/usr/share/nginx/html/index.html"` | 호스트 파일을 컨테이너 내부 파일 위치에 연결 |
+| `-v /c/Users/wldn3089811/1-1/1-1/bind-mount-test:/usr/share/nginx/html:ro` |	호스트 폴더를 nginx 웹 루트에 바인드 마운트 |
+| `:ro` | 읽기 전용으로 마운트 |
+| `nginx:alpine` | nginx 경량 이미지 사용 |
+
+바인드 마운트가 정상적으로 적용되면, 호스트에서 bind-mount-test 폴더 안의 index.html 파일을 수정한 뒤 http://localhost:8082를 새로고침했을 때 변경 내용이 즉시 반영된다.
 
 ---
 
@@ -861,10 +868,11 @@ $ curl http://localhost:8082
 </head>
 <body>
     <h1>Bind Mount Version 1</h1>
+    <p>This content was changed on the host machine.</p>
 </body>
 </html>
 ```
-![바인드 마운트 증거](docs/images/port-8081-browser.png)
+![바인드 마운트 증거](docs/images/bind-mount1.png)
 호스트의 `index.html` 파일 내용이 컨테이너에서 제공되는 것을 확인했다.
 
 ---
@@ -872,7 +880,7 @@ $ curl http://localhost:8082
 ### 13-5. 호스트 파일 수정
 
 ```bash
-$ cat > index.html <<'EOF'
+$ cat > index.html 
 <!DOCTYPE html>
 <html>
 <head>
@@ -883,8 +891,7 @@ $ cat > index.html <<'EOF'
     <h1>Bind Mount Version 2</h1>
     <p>Host file change reflected in container.</p>
 </body>
-</html>
-EOF
+</html> 
 ```
 
 호스트의 `index.html` 파일 내용을 수정했다.
@@ -907,7 +914,7 @@ $ curl http://localhost:8082
 </body>
 </html>
 ```
-
+![바인드 마운트 증거](docs/images/bind-mount2.png)
 `curl http://localhost:8082` 명령 결과가 `Bind Mount Version 2`로 변경되었으므로, 호스트 파일 수정 사항이 컨테이너에 즉시 반영됨을 확인했다.
 
 ---

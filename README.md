@@ -99,7 +99,7 @@ $ find . -path ./.git -prune -o -print | sort
 | Docker 기본 운영 | 이미지/컨테이너 목록, 로그, 리소스 | `docker images`, `docker ps`, `docker ps -a`, `docker logs`, `docker stats` | 완료 | [6. Docker 기본 운영 명령](#6-docker-기본-운영-명령) |
 | hello-world | 컨테이너 실행 성공 | `docker run hello-world` | 완료 | [7. hello-world 컨테이너 실행](#7-hello-world-컨테이너-실행) |
 | Ubuntu 컨테이너 | 내부 진입 후 명령 수행 | `docker run -it ubuntu bash` | 완료 | [8. Ubuntu 컨테이너 실습](#8-ubuntu-컨테이너-실습) |
-| attach/exec 차이 | 컨테이너 종료/유지 차이 관찰 | `docker exec` 후 `exit`, `docker ps` | 완료 | [8-3. attach와 exec 차이 정리](#8-3-attach와-exec-차이-정리) |
+| attach/exec 차이 | 컨테이너 종료/유지 차이 관찰 | `docker exec`/`docker attach` 후 `exit`, `docker ps -a` | 완료 | [8-3. 차이 정리](#8-3-attach와-exec-차이-정리), [8-4. exec](#8-4-실행-중인-ubuntu-컨테이너에-exec로-접속), [8-5. attach](#8-5-attach로-접속-후-종료-관찰) |
 | Dockerfile | 기존 NGINX 이미지 기반 커스텀 이미지 | `cat Dockerfile` | 완료 | [9. Dockerfile 기반 커스텀 이미지 제작](#9-dockerfile-기반-커스텀-이미지-제작) |
 | 이미지 빌드 | 빌드 성공, 이미지와 컨테이너의 차이 | `docker build`, `docker images` | 완료 | [10. 커스텀 이미지 빌드](#10-커스텀-이미지-빌드), [10-2. 이미지와 컨테이너](#10-2-이미지와-컨테이너의-차이-저장-vs-실행) |
 | 컨테이너 실행 | 커스텀 이미지 컨테이너 실행 | `docker run -d -p 8081:80`, `docker ps` | 완료 | [11. 커스텀 웹 서버 컨테이너 실행](#11-커스텀-웹-서버-컨테이너-실행) |
@@ -706,7 +706,7 @@ Docker 컨테이너 내부에 접근하는 방식으로 `attach`와 `exec`가 �
 | 종료 영향 | 쉘에서 `exit`하면 컨테이너가 종료될 수 있음 | `exit`해도 컨테이너의 메인 프로세스는 유지됨 |
 | 주 사용 상황 | 컨테이너의 기존 터미널에 붙을 때 | 실행 중인 컨테이너 내부에서 추가 명령을 실행할 때 |
 
-실습에서는 실행 중인 컨테이너를 유지한 상태에서 내부 명령을 수행하기 위해 `docker exec` 방식이 더 안전하다는 것을 확인했다.
+실습에서는 두 방식을 모두 직접 실행해, 같은 `exit`라도 결과가 다르다는 것을 관찰했다. (exec: [8-4](#8-4-실행-중인-ubuntu-컨테이너에-exec로-접속), attach: [8-5](#8-5-attach로-접속-후-종료-관찰)) 실행 중인 컨테이너를 유지한 채 내부 명령을 수행할 때는 `docker exec` 방식이 더 안전하다.
 
 ---
 
@@ -755,6 +755,45 @@ ubuntu-practice
 $ docker rm ubuntu-practice
 ubuntu-practice
 ```
+
+---
+
+### 8-5. attach로 접속 후 종료 관찰
+
+8-4와 같은 방식으로 Ubuntu 컨테이너를 백그라운드에서 실행한 뒤, 이번에는 `docker attach`로 접속해 `exit`를 실행했다.
+
+```bash
+$ docker run -dit --name attach-test ubuntu bash
+Unable to find image 'ubuntu:latest' locally
+latest: Pulling from library/ubuntu
+96aae9022e0e: Pull complete
+517b871c26ea: Pull complete
+e211d985152c: Download complete
+Digest: sha256:d66b366dac61b575bee2aef07e9c26e8070096fbe84a3d4d3eb0da069b5d76db
+Status: Downloaded newer image for ubuntu:latest
+8d6ee271a8a5e9c99cbcf963b9fae42da4336f7dc7cefabc08d83d5901f3ed24
+
+$ docker attach attach-test
+root@8d6ee271a8a5:/# exit
+exit
+
+$ docker ps -a --filter name=attach-test
+CONTAINER ID   IMAGE     COMMAND   CREATED          STATUS                     PORTS     NAMES
+8d6ee271a8a5   ubuntu    "bash"    19 seconds ago   Exited (0) 3 seconds ago             attach-test
+
+$ docker rm attach-test
+attach-test
+```
+
+`exit` 직후 컨테이너 상태가 `Exited (0)`으로 바뀌었다.
+
+| 비교 | exec (8-4) | attach (8-5) |
+|---|---|---|
+| 접속한 셸 | `docker exec`가 새로 띄운 **추가 bash 프로세스** | 컨테이너의 **메인 프로세스(PID 1) bash** 자체 |
+| `exit` 후 상태 | `Up` (컨테이너 유지) | `Exited (0)` (컨테이너 종료) |
+| 이유 | 추가 프로세스만 끝나고 메인 프로세스는 계속 실행됨 | 메인 프로세스가 끝나면 컨테이너도 종료됨 |
+
+컨테이너의 수명은 메인 프로세스(PID 1)의 수명과 같다는 것을 직접 확인했다. attach 상태에서 컨테이너를 종료하지 않고 빠져나오려면 `exit` 대신 `Ctrl + P`, `Ctrl + Q`(detach 키)를 사용한다.
 
 ---
 
@@ -1493,7 +1532,7 @@ README 작성 시 다음 정보는 직접 노출하지 않고 마스킹 처리�
 | 이미지 ID | 이전 실습 로그는 `<IMAGE_ID>`로 표기. 10-1에는 실제 값 기록 |
 | 커밋 ID | `<COMMIT_ID>` |
 | 날짜 및 시간 | `<DATE>`, `<TIME>` |
-| Docker Digest | `<DIGEST>` |
+| Docker Digest | 이전 실습 로그는 `<DIGEST>`로 표기. 공개 이미지의 식별값이라 민감정보가 아니므로 재실행 로그(8-5)에는 실제 값 기록 |
 
 ---
 
